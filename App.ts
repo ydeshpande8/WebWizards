@@ -78,7 +78,7 @@ class App {
       {
         await this.Category.model.create([jsonObj]);
         //res.send('{"id""' + id + '"}');
-        res.send('Category created successfully for ' + jsonObj.name)
+        res.send(jsonObj.name + ' category created successfully' )
       }
       catch(e)
       {

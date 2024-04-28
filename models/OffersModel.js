@@ -69,3 +69,4 @@ class OffersModel {
     }
 }
 exports.OffersModel = OffersModel;
+//# sourceMappingURL=OffersModel.js.map

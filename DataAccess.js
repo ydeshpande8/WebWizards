@@ -24,3 +24,4 @@ exports.DataAccess = DataAccess;
 //    static DB_CONNECTION_STRING:string = 'mongodb+srv://test:dbtest@cluster0.wvyas.azure.mongodb.net/toDoSample?retryWrites=true&w=majority';
 DataAccess.DB_CONNECTION_STRING = 'mongodb+srv://test:SeattleuPassword1su@cluster0.wvyas.azure.mongodb.net/toDoSample2022?retryWrites=true&w=majority';
 DataAccess.connect();
+//# sourceMappingURL=DataAccess.js.map

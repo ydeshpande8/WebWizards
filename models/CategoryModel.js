@@ -78,3 +78,4 @@ class CategoryModel {
     }
 }
 exports.CategoryModel = CategoryModel;
+//# sourceMappingURL=CategoryModel.js.map
