@@ -1,4 +1,4 @@
-1. Create db folder in PlayBuddy Directory
+1. Create db folder in WebWizards Directory
     mkdir db
  
 2. Run the mongod command to run the mongo server on port 3000
@@ -10,7 +10,7 @@
     mongosh --port 3000 --authenticationDatabase admin
  
 5. In Mongo Shell load the data population script and create the db admin user for further node server connectivity
-    load ('createDB/createPlayBuddySampleData.js')
+    load ('createDB/createBudget.js')
     load ('createDB/createAdminUser.js')
  
 6. Verify that the data is populated on the compass
