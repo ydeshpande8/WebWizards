@@ -19,31 +19,34 @@ class BudgetModel {
     }
     createSchema() {
         this.schema = new Mongoose.Schema({
-            categoryId: String,
-            budget: [
-                {
-                    budgetId: Number,
-                    amount: Number,
-                    date: Date,
-                    note: String
-                }
-            ]
+            categoryId: Number,
+            budgetId: Number,
+            amount: Number,
+            date: Date,
+            note: String,
+            type: String
         }, { collection: "budget" });
     }
     createModel() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield Mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-                this.model = Mongoose.model("Budget", this.schema);
+                this.model = Mongoose.model("budget", this.schema);
             }
             catch (e) {
                 console.error(e);
             }
         });
     }
-    retrieveAllBudget(response) {
+    retrieveAllBudget(req, response) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = this.model.find({});
+            const queryParams = req.query;
+            var query = this.model.find(queryParams);
+            //const query = {}
+            //if (queryParams.type)
+            // {
+            //     query.type = queryParams.type;
+            // }
             try {
                 const budgetArray = yield query.exec();
                 response.json(budgetArray);
@@ -54,9 +57,10 @@ class BudgetModel {
             }
         });
     }
-    retrieveBudgetDetails(response, filter) {
+    retrieveBudgetDetails(response, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            var query = this.model.findOne(filter);
+            console.log("Hello in budget");
+            var query = this.model.findOne({ budgetId: value });
             try {
                 const categoryArray = yield query.exec();
                 response.json(categoryArray);

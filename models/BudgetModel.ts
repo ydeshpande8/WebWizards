@@ -19,35 +19,44 @@ class BudgetModel{
     {
         this.schema = new Mongoose.Schema(
             {
-                categoryId : String ,
-                budget: [
-                    {
+                categoryId : Number ,
+                
                         budgetId : Number,
                         amount : Number,
                         date : Date,
-                        note : String
+                        note : String,
+                        type: String
                     }
-                ]
-                } ,{collection : "budget"} )
+                
+                 ,{collection : "budget"} )
     }
 
     public async createModel(){
         try
         {
             await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
-            this.model = Mongoose.model<IBudgetModel>("Budget",this.schema)
+            this.model = Mongoose.model<IBudgetModel>("budget",this.schema)
         }
         catch(e){
             console.error(e)
         }
     }
 
-    public async retrieveAllBudget(response:any)
+    public async retrieveAllBudget(req, response:any)
     {
-        var query = this.model.find({});
+        const queryParams = req.query;
+        var query = this.model.find(queryParams);
+        //const query = {}
+        
+        //if (queryParams.type)
+        // {
+        //     query.type = queryParams.type;
+        // }
+       
         try 
         {
             const budgetArray = await query.exec();
+            
             response.json(budgetArray);
         } 
         catch (error) {
@@ -55,9 +64,10 @@ class BudgetModel{
             throw error;
         }
     }
-    public async retrieveBudgetDetails(response:any, filter:Object) //: Promise<IBudgetModel[]> 
+    public async retrieveBudgetDetails(response:any, value:Number) //: Promise<IBudgetModel[]> 
     {
-        var query =  this.model.findOne(filter);
+        console.log("Hello in budget")
+        var query = this.model.findOne({budgetId: value})
         try 
         {
             const categoryArray = await query.exec();

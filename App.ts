@@ -40,13 +40,15 @@ class App {
   private routes(): void {
     let router = express.Router();
    
-    // get all categories   //working fine
+    // ********** CATEGORY ROUTES **********
+
+    // get all categories   
     router.get('/app/category/', async (req, res) => {
       console.log('Query All Categories');
       await this.Category.retrieveAllCategories(res);
   });
 
-    //get one category    //not working
+    //get one category    
     router.get('/app/category/:categoryId', async (req, res) =>{
       var id = parseInt(req.params.categoryId);
       console.log('Query to get one category with id:' + id);
@@ -61,19 +63,19 @@ class App {
     }
     });
 
-    // get count of all categories   //working fine
+    // get count of all categories   
     router.get('/app/categorycount', async (req, res) => {
       console.log('Query the number of category elements in db');
       await this.Category.retrieveCategoryCount(res);
     });
 
-    //create category    //have not checked
+    //create category  
     router.post('/app/category/', async (req, res) => 
     {
       const id = crypto.randomBytes(16).toString("hex");
       console.log(req.body);
       var jsonObj = req.body;
-      jsonObj.listId = id;
+      //jsonObj.listId = id;
       try
       {
         await this.Category.model.create([jsonObj]);
@@ -87,17 +89,37 @@ class App {
       }
     });
 
-    //get all budget    //working fine
+    // ********** BUDGET ROUTES **********
+
+    //get all budget    
     router.get('/app/budget/', async (req, res) => {
       console.log('Query All budget');
-      await this.Budget.retrieveAllBudget(res);
+      await this.Budget.retrieveAllBudget(req, res);
   });
  
-    //get count of all budgets    //working fine
+    //get count of all budgets    
     router.get('/app/budgetcount', async (req, res) => {
       console.log('Query the number of budget elements in db');
       await this.Budget.retrieveBudgetCounts(res);
     });
+
+    //get one budget
+    router.get('/app/budget/:budgetId', async (req, res) =>{
+      var id = parseInt(req.params.budgetId);
+      console.log('Query to get one category with id:' + id);
+      try 
+      {
+          await this.Budget.retrieveBudgetDetails(res, id);
+      } 
+      catch (error) 
+      {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while retrieving the category.' });
+    }
+    });
+    
+    
+    //create budget
 
     this.expressApp.use('/', router);
 
