@@ -20,6 +20,7 @@ class BudgetModel {
     createSchema() {
         this.schema = new Mongoose.Schema({
             categoryId: Number,
+            userId: Number,
             budgetId: Number,
             amount: Number,
             date: Date,

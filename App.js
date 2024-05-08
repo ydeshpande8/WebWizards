@@ -101,6 +101,19 @@ class App {
             }
         }));
         //create budget
+        router.post('/app/budget/', (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const id = crypto.randomBytes(16).toString("hex");
+            console.log(req.body);
+            var jsonObj = req.body;
+            try {
+                yield this.Category.model.create([jsonObj]);
+                res.send(jsonObj.name + ' Budget created successfully');
+            }
+            catch (e) {
+                console.error(e);
+                console.log('object creation failed');
+            }
+        }));
         this.expressApp.use('/', router);
         this.expressApp.use('/app/json/', express.static(__dirname + '/app/json'));
         this.expressApp.use('/images', express.static(__dirname + '/img'));

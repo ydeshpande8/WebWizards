@@ -1,25 +1,20 @@
 db = db.getSiblingDB('my_database')
-
-
 // Create a collection for users
 db.createCollection('users')
 // users collection
 usersCollection = db.getCollection("users")
 // remove existing data
-usersCollection.remove({})
-
+usersCollection.deleteMany({})
 // create new data for users
 // Insert 10 users into the users collection
 for (var i = 0; i < 10; i++) {
-    usersCollection.insert({
+    usersCollection.insertOne({
         fname: "First" + (i + 1),
         lname: "Last" + (i + 1),
         email: "user" + (i + 1) + "@example.com", 
         password: "password" + (i + 1), userId : i +1
     });
 }
-
-
 db.createCollection('category')
 categoryList = db.getCollection("category")
 categoryList.deleteMany({})

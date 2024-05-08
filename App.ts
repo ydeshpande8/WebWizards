@@ -120,6 +120,23 @@ class App {
     
     
     //create budget
+    router.post('/app/budget/', async (req, res) => 
+      {
+        const id = crypto.randomBytes(16).toString("hex");
+        console.log(req.body);
+        var jsonObj = req.body;
+       
+        try
+        {
+          await this.Category.model.create([jsonObj]);
+          res.send(jsonObj.name + ' Budget created successfully' )
+        }
+        catch(e)
+        {
+          console.error(e);
+          console.log('object creation failed');
+        }
+      });
 
     this.expressApp.use('/', router);
 

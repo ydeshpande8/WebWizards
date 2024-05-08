@@ -20,15 +20,15 @@ class BudgetModel{
         this.schema = new Mongoose.Schema(
             {
                 categoryId : Number ,
-                
-                        budgetId : Number,
-                        amount : Number,
-                        date : Date,
-                        note : String,
-                        type: String
-                    }
-                
-                 ,{collection : "budget"} )
+                userId : Number,
+                budgetId : Number,
+                amount : Number,
+                date : Date,
+                note : String,
+                type: String
+            }
+        
+            ,{collection : "budget"} )
     }
 
     public async createModel(){
@@ -46,13 +46,6 @@ class BudgetModel{
     {
         const queryParams = req.query;
         var query = this.model.find(queryParams);
-        //const query = {}
-        
-        //if (queryParams.type)
-        // {
-        //     query.type = queryParams.type;
-        // }
-       
         try 
         {
             const budgetArray = await query.exec();
@@ -64,7 +57,7 @@ class BudgetModel{
             throw error;
         }
     }
-    public async retrieveBudgetDetails(response:any, value:Number) //: Promise<IBudgetModel[]> 
+    public async retrieveBudgetDetails(response:any, value:Number)
     {
         console.log("Hello in budget")
         var query = this.model.findOne({budgetId: value})
@@ -80,7 +73,7 @@ class BudgetModel{
     }
 
 
-    public async retrieveBudgetCount(response:any, filter:Object) //: Promise<IBudgetModel[]> 
+    public async retrieveBudgetCount(response:any, filter:Object) 
     {
         var query = this.model.findOne(filter);
         try 
