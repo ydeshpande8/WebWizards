@@ -126,8 +126,7 @@ class BudgetModel{
         }
     }
 
-    public async         res.send(jsonObj.name + ' Budget created successfully' )
-    (req: any, response: any) {
+    public async reportByMonthYear(req: any, response: any) {
         try {
             const { month, year } = req.query;
             const aggregateQuery = [
@@ -157,6 +156,19 @@ class BudgetModel{
             ];
             const budgetByMonthYear = await this.model.aggregate(aggregateQuery).exec();
             response.json(budgetByMonthYear);
+
+            /*
+            [
+                {
+                    "type": "income",
+                    "totalAmount": 1500
+                },
+                {
+                    "type": "expense",
+                    "totalAmount": 800
+                }
+            ]
+            */
         }
         catch (error) {
             console.error(error);
