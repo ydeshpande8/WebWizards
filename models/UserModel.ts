@@ -21,6 +21,20 @@ class UserModel {
     {
         try{
             await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
+            this.schema.pre<IUserModel>('save', async function (next) {
+                try {
+                    // Check if the document being saved is new
+                    if (this.isNew) {
+                        const lastUser = await this.constructor.findOne({}, {}, { sort: { 'userId': -1 } });
+                        // If there are no users, start userId from 1, else increment from the last user's userId
+                        this.userId = lastUser ? lastUser.userId + 1 : 1;
+                    }
+                    next();
+                } catch (error) {
+                    next(error);
+                }
+            });
+
             this.model = Mongoose.model<IUserModel>("Users",this.schema)
             // this.model = mongooseConnection.model<IUserModel>("Users", this.schema)
         }
@@ -33,10 +47,11 @@ class UserModel {
     {
         this.schema = new Mongoose.Schema(
             {
-                fname : String,
-                lname : String,
-                email : String,
-                password : String
+                fname: { type: String, required: true },
+                lname: { type: String, required: true },
+                email: { type: String, required: true },
+                password: { type: String, required: true },
+                userId: { type: Number, required: false},
             }, { collection : "users" });
     }
 

@@ -20,14 +20,14 @@ class BudgetModel{
     {
         this.schema = new Mongoose.Schema(
             {
-                categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
-                userId: { type: Schema.Types.ObjectId, ref: 'Users' },
+                categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+                userId: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
                 // userId : Number,
-                budgetId : Number,
-                amount : Number,
-                date : Date,
-                note : String,
-                type: String
+                budgetId : { type: Number, required: false },
+                amount :  { type: Number, required: true },
+                date :  { type: Date, required: true },
+                note :  { type: String, required: true },
+                type:  { type: String, required: true }
             }
         
             ,{collection : "budget"} )
@@ -37,6 +37,19 @@ class BudgetModel{
         try
         {
             await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
+            this.schema.pre<IBudgetModel>('save', async function (next) {
+                try {
+                    // Check if the document being saved is new
+                    if (this.isNew) {
+                        const lastBudget = await this.constructor.findOne({}, {}, { sort: { 'budgetId': -1 } });
+                        this.budgetId = lastBudget ? lastBudget.budgetId + 1 : 1;
+                    }
+                    next();
+                } catch (error) {
+                    next(error);
+                }
+            });
+            
             this.model = Mongoose.model<IBudgetModel>("Budget",this.schema)
         }
         catch(e){
@@ -113,5 +126,55 @@ class BudgetModel{
         }
     }
 
+    public async reportByMonthYear(req: any, response: any) {
+        try {
+            const { month, year } = req.query;
+            const aggregateQuery = [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: [{ $month: "$date" }, parseInt(month)] }, // Match month
+                                { $eq: [{ $year: "$date" }, parseInt(year)] } // Match year
+                            ]
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$type", // Group by type
+                        totalAmount: { $sum: "$amount" } // Calculate sum of amount for each type
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0, // Exclude _id field
+                        type: "$_id", // Project type
+                        totalAmount: 1 // Project totalAmount
+                    }
+                }
+            ];
+            const budgetByMonthYear = await this.model.aggregate(aggregateQuery).exec();
+            response.json(budgetByMonthYear);
+
+            /*
+            [
+                {
+                    "type": "income",
+                    "totalAmount": 1500
+                },
+                {
+                    "type": "expense",
+                    "totalAmount": 800
+                }
+            ]
+            */
+        }
+        catch (error) {
+            console.error(error);
+            response.status(500).json({ message: 'Internal server error' });
+        }
+
+    }
 }
 export{BudgetModel}
