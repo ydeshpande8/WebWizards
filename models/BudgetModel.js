@@ -20,20 +20,35 @@ class BudgetModel {
     }
     createSchema() {
         this.schema = new Mongoose.Schema({
-            categoryId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Category' },
-            userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Users' },
+            categoryId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Category', required: true },
+            userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Users', required: true },
             // userId : Number,
-            budgetId: Number,
-            amount: Number,
-            date: Date,
-            note: String,
-            type: String
+            budgetId: { type: Number, required: false },
+            amount: { type: Number, required: true },
+            date: { type: Date, required: true },
+            note: { type: String, required: true },
+            type: { type: String, required: true }
         }, { collection: "budget" });
     }
     createModel() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield Mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+                this.schema.pre('save', function (next) {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            // Check if the document being saved is new
+                            if (this.isNew) {
+                                const lastBudget = yield this.constructor.findOne({}, {}, { sort: { 'budgetId': -1 } });
+                                this.budgetId = lastBudget ? lastBudget.budgetId + 1 : 1;
+                            }
+                            next();
+                        }
+                        catch (error) {
+                            next(error);
+                        }
+                    });
+                });
                 this.model = Mongoose.model("Budget", this.schema);
             }
             catch (e) {
@@ -101,6 +116,56 @@ class BudgetModel {
             }
             catch (e) {
                 console.error(e);
+            }
+        });
+    }
+    reportByMonthYear(req, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { month, year } = req.query;
+                const aggregateQuery = [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: [{ $month: "$date" }, parseInt(month)] }, // Match month
+                                    { $eq: [{ $year: "$date" }, parseInt(year)] } // Match year
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$type", // Group by type
+                            totalAmount: { $sum: "$amount" } // Calculate sum of amount for each type
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0, // Exclude _id field
+                            type: "$_id", // Project type
+                            totalAmount: 1 // Project totalAmount
+                        }
+                    }
+                ];
+                const budgetByMonthYear = yield this.model.aggregate(aggregateQuery).exec();
+                response.json(budgetByMonthYear);
+                /*
+                [
+                    {
+                        "type": "income",
+                        "totalAmount": 1500
+                    },
+                    {
+                        "type": "expense",
+                        "totalAmount": 800
+                    }
+                ]
+                */
+            }
+            catch (error) {
+                console.error(error);
+                response.status(500).json({ message: 'Internal server error' });
             }
         });
     }

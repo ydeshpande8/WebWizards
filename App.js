@@ -116,6 +116,16 @@ class App {
                 console.log('object creation failed');
             }
         }));
+        // get report 
+        router.get('/app/report/', (req, res) => __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.Budget.reportByMonthYear(req, res);
+            }
+            catch (e) {
+                console.error(e);
+                console.log('something error');
+            }
+        }));
         this.expressApp.use('/', router);
         this.expressApp.use('/app/json/', express.static(__dirname + '/app/json'));
         this.expressApp.use('/images', express.static(__dirname + '/img'));

@@ -141,7 +141,7 @@ class App {
       });
 
     // get report 
-    router.post('/app/budget/', async (req, res) => {
+    router.get('/app/report/', async (req, res) => {
       try
       {
         await this.Budget.reportByMonthYear(req, res);

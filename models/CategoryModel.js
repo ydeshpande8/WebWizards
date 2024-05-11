@@ -20,15 +20,31 @@ class CategoryModel {
     }
     createSchema() {
         this.schema = new Mongoose.Schema({
-            categoryId: Number,
-            name: String,
-            description: String
+            categoryId: { type: Number, required: false },
+            name: { type: String, required: true },
+            description: { type: String, required: true }
         }, { collection: "category" });
     }
     createModel() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield Mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+                this.schema.pre('save', function (next) {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            // Check if the document being saved is new
+                            if (this.isNew) {
+                                const lastCategory = yield this.constructor.findOne({}, {}, { sort: { 'categoryId': -1 } });
+                                // If there are no category, start categoryId from 1, else increment from the last cat id
+                                this.categoryId = lastCategory ? lastCategory.categoryId + 1 : 1;
+                            }
+                            next();
+                        }
+                        catch (error) {
+                            next(error);
+                        }
+                    });
+                });
                 this.model = Mongoose.model("Category", this.schema);
             }
             catch (e) {
