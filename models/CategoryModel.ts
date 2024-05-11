@@ -18,9 +18,9 @@ class CategoryModel{
     public createSchema(){
         this.schema = new Mongoose.Schema(
             {
-                categoryId : Number ,  
-                name : String , 
-                description : String
+                categoryId :  { type: Number, required: true } ,  
+                name :  { type: String, required: true } , 
+                description :  { type: String, required: true }
             } ,{collection : "category"} )
     }
 
@@ -28,6 +28,20 @@ class CategoryModel{
         try
         {
             await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
+            this.schema.pre<ICategoryModel>('save', async function (next) {
+                try {
+                    // Check if the document being saved is new
+                    if (this.isNew) {
+                        const lastCategory = await this.constructor.findOne({}, {}, { sort: { 'categoryId': -1 } });
+                        // If there are no category, start categoryId from 1, else increment from the last cat id
+                        this.categoryId = lastCategory ? lastCategory.categoryId + 1 : 1;
+                    }
+                    next();
+                } catch (error) {
+                    next(error);
+                }
+            });
+            
             this.model = Mongoose.model<ICategoryModel>("Category",this.schema)
         }
         catch(e){
