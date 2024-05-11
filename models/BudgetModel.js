@@ -43,11 +43,6 @@ class BudgetModel {
         return __awaiter(this, void 0, void 0, function* () {
             const queryParams = req.query;
             var query = this.model.find(queryParams);
-            //const query = {}
-            //if (queryParams.type)
-            // {
-            //     query.type = queryParams.type;
-            // }
             try {
                 const budgetArray = yield query.exec();
                 response.json(budgetArray);
