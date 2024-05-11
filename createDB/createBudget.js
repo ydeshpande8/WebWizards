@@ -28,7 +28,7 @@ categoryList.insertOne(
 categoryList.insertOne(
     {
         categoryId: 2,
-        name: "Clothes",
+        name: "Education",
         description: "This category will contain expenses and incomes on Clothes."
     }
 );
@@ -42,19 +42,32 @@ categoryList.insertOne(
 categoryList.insertOne(
     {
         categoryId: 4,
-        name: "Education",
+        name: "Salary",
+        description: "This category will contain expenses and incomes on Education."
+    }
+);
+categoryList.insertOne(
+    {
+        categoryId: 4,
+        name: "Bonus",
         description: "This category will contain expenses and incomes on Education."
     }
 );
 const userId = 1
-const user = usersCollection.findOne({userId : userId})
+const user_1 = usersCollection.findOne({userId : 1})
+const user_2 = usersCollection.findOne({userId : 2})
+const cat_1 = categoryList.findOne({categoryId : 1})
+const cat_2 = categoryList.findOne({categoryId : 2})
+const cat_3 = categoryList.findOne({categoryId : 3})
+const cat_4 = categoryList.findOne({categoryId : 4})
+const cat_5 = categoryList.findOne({categoryId : 5})
 db.createCollection('budget')
 budgetList = db.getCollection("budget")
 budgetList.deleteMany({})
 budgetList.insertOne({
-    userId : user._id,
+    userId : user_1._id,
+    categoryId : cat_1._id,
     budgetId : 1,
-    categoryId : 1,
     type: "Income",
     amount: 10,
     date: new Date(),
@@ -63,9 +76,9 @@ budgetList.insertOne({
 });
 
 budgetList.insertOne({
-    userId : user._id,
+    userId : user_1._id,
+    categoryId : cat_3._id,
     budgetId : 2,
-    categoryId : 2,
     type: "Expense",
     amount: 10,
     date: new Date(),
@@ -74,9 +87,9 @@ budgetList.insertOne({
 });
 
 budgetList.insertOne({
-    userId : 1,
+    userId : user_1._id,
+    categoryId : cat_2._id,
     budgetId : 3,
-    categoryId : 1,
     type: "Income",
     amount: 10,
     date: new Date(),
@@ -85,9 +98,9 @@ budgetList.insertOne({
 });
 
 budgetList.insertOne({
-    userId : 1,
+    userId : user_1._id,
+    categoryId : cat_4._id,
     budgetId : 4,
-    categoryId : 1,
     type: "Income",
     amount: 10,
     date: new Date(),
