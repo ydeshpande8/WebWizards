@@ -126,5 +126,43 @@ class BudgetModel{
         }
     }
 
+    public async         res.send(jsonObj.name + ' Budget created successfully' )
+    (req: any, response: any) {
+        try {
+            const { month, year } = req.query;
+            const aggregateQuery = [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: [{ $month: "$date" }, parseInt(month)] }, // Match month
+                                { $eq: [{ $year: "$date" }, parseInt(year)] } // Match year
+                            ]
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$type", // Group by type
+                        totalAmount: { $sum: "$amount" } // Calculate sum of amount for each type
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0, // Exclude _id field
+                        type: "$_id", // Project type
+                        totalAmount: 1 // Project totalAmount
+                    }
+                }
+            ];
+            const budgetByMonthYear = await this.model.aggregate(aggregateQuery).exec();
+            response.json(budgetByMonthYear);
+        }
+        catch (error) {
+            console.error(error);
+            response.status(500).json({ message: 'Internal server error' });
+        }
+
+    }
 }
 export{BudgetModel}

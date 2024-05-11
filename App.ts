@@ -140,6 +140,19 @@ class App {
         }
       });
 
+    // get report 
+    router.post('/app/budget/', async (req, res) => {
+      try
+      {
+        await this.Budget.reportByMonthYear(req, res);
+      }
+      catch(e)
+      {
+        console.error(e);
+        console.log('something error');
+      }
+    })
+
     this.expressApp.use('/', router);
 
     this.expressApp.use('/app/json/', express.static(__dirname+'/app/json'));
