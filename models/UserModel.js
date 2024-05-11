@@ -11,9 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = void 0;
 const Mongoose = require("mongoose");
-const DataAccess_1 = require("../DataAccess");
-let mongooseConnection = DataAccess_1.DataAccess.mongooseConnection;
-let mongooseObj = DataAccess_1.DataAccess.mongooseInstance;
+// let mongooseConnection = DataAccess.mongooseConnection;
+// let mongooseObj = DataAccess.mongooseInstance;
 class UserModel {
     constructor(dbConnectionString) {
         this.dbConnectionString = dbConnectionString;
@@ -23,7 +22,9 @@ class UserModel {
     createModel() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.model = mongooseConnection.model("Users", this.schema);
+                yield Mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+                this.model = Mongoose.model("Users", this.schema);
+                // this.model = mongooseConnection.model<IUserModel>("Users", this.schema)
             }
             catch (e) {
                 console.error(e);

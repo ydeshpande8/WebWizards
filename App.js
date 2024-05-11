@@ -15,6 +15,7 @@ const bodyParser = require("body-parser");
 const CategoryModel_1 = require("./models/CategoryModel");
 const BudgetModel_1 = require("./models/BudgetModel");
 const crypto = require("crypto");
+const UserModel_1 = require("./models/UserModel");
 // Creates and configures an ExpressJS web server.
 class App {
     //Run configuration methods on the Express instance.
@@ -24,6 +25,7 @@ class App {
         this.routes();
         this.Category = new CategoryModel_1.CategoryModel(mongoDBConnection);
         this.Budget = new BudgetModel_1.BudgetModel(mongoDBConnection);
+        this.User = new UserModel_1.UserModel(mongoDBConnection);
     }
     // Configure Express middleware.
     middleware() {

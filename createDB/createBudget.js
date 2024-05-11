@@ -46,11 +46,13 @@ categoryList.insertOne(
         description: "This category will contain expenses and incomes on Education."
     }
 );
+const userId = 1
+const user = usersCollection.findOne({userId : userId})
 db.createCollection('budget')
 budgetList = db.getCollection("budget")
 budgetList.deleteMany({})
 budgetList.insertOne({
-    userId : 1,
+    userId : user._id,
     budgetId : 1,
     categoryId : 1,
     type: "Income",
@@ -61,7 +63,7 @@ budgetList.insertOne({
 });
 
 budgetList.insertOne({
-    userId : 1,
+    userId : user._id,
     budgetId : 2,
     categoryId : 2,
     type: "Expense",

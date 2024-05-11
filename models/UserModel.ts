@@ -2,8 +2,8 @@ import * as Mongoose from "mongoose";
 import { IUserModel } from "../interfaces/IUserModel";
 import { DataAccess } from "../DataAccess";
 
-let mongooseConnection = DataAccess.mongooseConnection;
-let mongooseObj = DataAccess.mongooseInstance;
+// let mongooseConnection = DataAccess.mongooseConnection;
+// let mongooseObj = DataAccess.mongooseInstance;
 
 class UserModel {
     public schema : any;
@@ -20,7 +20,9 @@ class UserModel {
     public async createModel() 
     {
         try{
-            this.model = mongooseConnection.model<IUserModel>("Users", this.schema)
+            await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
+            this.model = Mongoose.model<IUserModel>("Users",this.schema)
+            // this.model = mongooseConnection.model<IUserModel>("Users", this.schema)
         }
         catch(e){
             console.error(e)

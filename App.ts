@@ -3,7 +3,7 @@ import * as bodyParser from 'body-parser';
 import {CategoryModel} from './models/CategoryModel';
 import {BudgetModel} from './models/BudgetModel';
 import * as crypto from 'crypto';
-
+import { UserModel } from './models/UserModel';
 // Creates and configures an ExpressJS web server.
 class App {
 
@@ -13,6 +13,7 @@ class App {
   public Category : CategoryModel;
 
   public Budget : BudgetModel;
+  public User : UserModel;
 
   //Run configuration methods on the Express instance.
   constructor(mongoDBConnection:string)
@@ -23,7 +24,8 @@ class App {
     
     this.Category = new CategoryModel(mongoDBConnection);
     this.Budget = new BudgetModel(mongoDBConnection);
-  }
+    this.User = new UserModel(mongoDBConnection);
+   }
 
   // Configure Express middleware.
   private middleware(): void {

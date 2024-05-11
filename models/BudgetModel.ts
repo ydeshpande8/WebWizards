@@ -1,5 +1,6 @@
 import * as Mongoose from "mongoose";
 import { IBudgetModel } from "../interfaces/IBudgetModel";
+import { Schema } from "mongoose";
 
 
 class BudgetModel{
@@ -14,13 +15,15 @@ class BudgetModel{
         this.createModel();
 
     } 
-
+    
     public createSchema() : void 
     {
         this.schema = new Mongoose.Schema(
             {
-                categoryId : Number ,
-                userId : Number,
+                // categoryId: { type: Schema.Types.ObjectId, ref: 'Users' },
+                categoryId : Number,
+                userId: { type: Schema.Types.ObjectId, ref: 'Users' },
+                // userId : Number,
                 budgetId : Number,
                 amount : Number,
                 date : Date,
@@ -35,7 +38,7 @@ class BudgetModel{
         try
         {
             await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
-            this.model = Mongoose.model<IBudgetModel>("budget",this.schema)
+            this.model = Mongoose.model<IBudgetModel>("Budget",this.schema)
         }
         catch(e){
             console.error(e)
@@ -45,7 +48,8 @@ class BudgetModel{
     public async retrieveAllBudget(req, response:any)
     {
         const queryParams = req.query;
-        var query = this.model.find(queryParams);
+        // var query = this.model.find(queryParams).populate("userId");
+        var query = this.model.find(queryParams).populate({path : "userId", select : "fname lname"});
         try 
         {
             const budgetArray = await query.exec();
@@ -60,7 +64,7 @@ class BudgetModel{
     public async retrieveBudgetDetails(response:any, value:Number)
     {
         console.log("Hello in budget")
-        var query = this.model.findOne({budgetId: value})
+        var query = this.model.findOne({budgetId: value}).populate("userId")
         try 
         {
             const categoryArray = await query.exec();

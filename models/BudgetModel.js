@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BudgetModel = void 0;
 const Mongoose = require("mongoose");
+const mongoose_1 = require("mongoose");
 class BudgetModel {
     constructor(dbConnectionString) {
         this.dbConnectionString = dbConnectionString;
@@ -19,8 +20,10 @@ class BudgetModel {
     }
     createSchema() {
         this.schema = new Mongoose.Schema({
+            // categoryId: { type: Schema.Types.ObjectId, ref: 'Users' },
             categoryId: Number,
-            userId: Number,
+            userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Users' },
+            // userId : Number,
             budgetId: Number,
             amount: Number,
             date: Date,
@@ -32,7 +35,7 @@ class BudgetModel {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield Mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-                this.model = Mongoose.model("budget", this.schema);
+                this.model = Mongoose.model("Budget", this.schema);
             }
             catch (e) {
                 console.error(e);
@@ -42,7 +45,8 @@ class BudgetModel {
     retrieveAllBudget(req, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const queryParams = req.query;
-            var query = this.model.find(queryParams);
+            // var query = this.model.find(queryParams).populate("userId");
+            var query = this.model.find(queryParams).populate({ path: "userId", select: "fname lname" });
             try {
                 const budgetArray = yield query.exec();
                 response.json(budgetArray);
@@ -56,7 +60,7 @@ class BudgetModel {
     retrieveBudgetDetails(response, value) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Hello in budget");
-            var query = this.model.findOne({ budgetId: value });
+            var query = this.model.findOne({ budgetId: value }).populate("userId");
             try {
                 const categoryArray = yield query.exec();
                 response.json(categoryArray);
