@@ -108,7 +108,7 @@ class App {
             console.log(req.body);
             var jsonObj = req.body;
             try {
-                yield this.Category.model.create([jsonObj]);
+                yield this.Budget.model.create([jsonObj]);
                 res.send(jsonObj.name + ' Budget created successfully');
             }
             catch (e) {
