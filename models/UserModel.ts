@@ -51,7 +51,7 @@ class UserModel {
                 lname: { type: String, required: true },
                 email: { type: String, required: true },
                 password: { type: String, required: true },
-                userId: { type: Number, required: true},
+                userId: { type: Number, required: false},
             }, { collection : "users" });
     }
 

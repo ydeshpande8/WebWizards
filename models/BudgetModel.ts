@@ -23,7 +23,7 @@ class BudgetModel{
                 categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
                 userId: { type: Schema.Types.ObjectId, ref: 'Users', required: true },
                 // userId : Number,
-                budgetId : { type: Number, required: true },
+                budgetId : { type: Number, required: false },
                 amount :  { type: Number, required: true },
                 date :  { type: Date, required: true },
                 note :  { type: String, required: true },

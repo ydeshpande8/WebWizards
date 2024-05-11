@@ -18,7 +18,7 @@ class CategoryModel{
     public createSchema(){
         this.schema = new Mongoose.Schema(
             {
-                categoryId :  { type: Number, required: true } ,  
+                categoryId :  { type: Number, required: false } ,  
                 name :  { type: String, required: true } , 
                 description :  { type: String, required: true }
             } ,{collection : "category"} )
