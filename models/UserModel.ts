@@ -21,7 +21,7 @@ class UserModel {
     {
         try{
             await Mongoose.connect(this.dbConnectionString, {useNewUrlParser: true, useUnifiedTopology: true} as Mongoose.ConnectOptions);
-            this.schema.pre<IUserModel>('save', async function (next) {
+            this.schema.pre('save', async function (next) {
                 try {
                     // Check if the document being saved is new
                     if (this.isNew) {
