@@ -1,9 +1,27 @@
 import * as express from 'express';
+import * as path from 'path';
+import * as mongodb from 'mongodb';
+import * as url from 'url';
+import * as session from 'express-session';
+import * as cookieParser from 'cookie-parser';
+import * as passport from 'passport';
+import GooglePassport from './GooglePassport';
 import * as bodyParser from 'body-parser'; 
 import {CategoryModel} from './models/CategoryModel';
 import {BudgetModel} from './models/BudgetModel';
 import * as crypto from 'crypto';
 import { UserModel } from './models/UserModel';
+
+
+declare global {
+  namespace Express {
+    interface User {
+      id: string,
+      displayName: string,
+    }
+  }
+}
+
 // Creates and configures an ExpressJS web server.
 class App {
 
@@ -14,6 +32,8 @@ class App {
 
   public Budget : BudgetModel;
   public User : UserModel;
+  public idGenerator:number;
+  public googlePassportObj:GooglePassport;
 
   //Run configuration methods on the Express instance.
   constructor(mongoDBConnection:string)
@@ -21,16 +41,23 @@ class App {
     this.expressApp = express();
     this.middleware();
     this.routes();
+    this.googlePassportObj = new GooglePassport();
+    this.idGenerator = 102;
     
     this.Category = new CategoryModel(mongoDBConnection);
     this.Budget = new BudgetModel(mongoDBConnection);
     this.User = new UserModel(mongoDBConnection);
    }
 
+
   // Configure Express middleware.
   private middleware(): void {
     this.expressApp.use(bodyParser.json());
     this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+    this.expressApp.use(session({ secret: 'keyboard cat' }));
+    this.expressApp.use(cookieParser());
+    this.expressApp.use(passport.initialize());
+    this.expressApp.use(passport.session());
     this.expressApp.use( (req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -38,20 +65,42 @@ class App {
     });
   }
 
+  private validateAuth(req, res, next):void {
+    if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
+    console.log("user is not authenticated");
+    res.redirect('/');
+  }
+
   // Configure API endpoints.
   private routes(): void {
     let router = express.Router();
+
+// Auth routes
+    router.get('/auth/google', 
+    passport.authenticate('google', {scope: ['profile']}));
+
+
+  router.get('/auth/google/callback', 
+    passport.authenticate('google', 
+      { failureRedirect: '/' }
+    ),
+    (req, res) => {
+      console.log("successfully authenticated user and returned to callback page.");
+      console.log("redirecting to /#/report");
+      res.redirect('/#/report');
+    } 
+  );
    
     // ********** CATEGORY ROUTES **********
 
     // get all categories   
-    router.get('/app/category/', async (req, res) => {
+    router.get('/app/category/', this.validateAuth,async (req, res) => {
       console.log('Query All Categories');
       await this.Category.retrieveAllCategories(res);
   });
 
     //get one category    
-    router.get('/app/category/:categoryId', async (req, res) =>{
+    router.get('/app/category/:categoryId', this.validateAuth,async (req, res) =>{
       var id = parseInt(req.params.categoryId);
       console.log('Query to get one category with id:' + id);
       try 
@@ -66,13 +115,13 @@ class App {
     });
 
     // get count of all categories   
-    router.get('/app/categorycount', async (req, res) => {
+    router.get('/app/categorycount', this.validateAuth, async (req, res) => {
       console.log('Query the number of category elements in db');
       await this.Category.retrieveCategoryCount(res);
     });
 
     //create category  
-    router.post('/app/category/', async (req, res) => 
+    router.post('/app/category/', this.validateAuth, async (req, res) => 
     {
       const id = crypto.randomBytes(16).toString("hex");
       console.log(req.body);
@@ -94,19 +143,19 @@ class App {
     // ********** BUDGET ROUTES **********
 
     //get all budget    
-    router.get('/app/budget/', async (req, res) => {
+    router.get('/app/budget/',this.validateAuth,  async (req, res) => {
       console.log('Query All budget');
       await this.Budget.retrieveAllBudget(req, res);
   });
  
     //get count of all budgets    
-    router.get('/app/budgetcount', async (req, res) => {
+    router.get('/app/budgetcount',this.validateAuth, async (req, res) => {
       console.log('Query the number of budget elements in db');
       await this.Budget.retrieveBudgetCounts(res);
     });
 
     //get one budget
-    router.get('/app/budget/:budgetId', async (req, res) =>{
+    router.get('/app/budget/:budgetId',this.validateAuth, async (req, res) =>{
       var id = parseInt(req.params.budgetId);
       console.log('Query to get one category with id:' + id);
       try 
@@ -122,7 +171,7 @@ class App {
     
     
     //create budget
-    router.post('/app/budget/', async (req, res) => 
+    router.post('/app/budget/',this.validateAuth,  async (req, res) => 
       {
         const id = crypto.randomBytes(16).toString("hex");
         console.log(req.body);
@@ -141,7 +190,7 @@ class App {
       });
 
     // get report 
-    router.get('/app/report/', async (req, res) => {
+    router.get('/app/report/',this.validateAuth, async (req, res) => {
       try
       {
         await this.Budget.reportByMonthYear(req, res);
@@ -157,7 +206,8 @@ class App {
 
     this.expressApp.use('/app/json/', express.static(__dirname+'/app/json'));
     this.expressApp.use('/images', express.static(__dirname+'/img'));
-    this.expressApp.use('/', express.static(__dirname+'/pages'));
+    // this.expressApp.use('/', express.static(__dirname+'/pages'));
+    this.expressApp.use('/', express.static(__dirname+'/dist/frontend/browser'));
     
     }
 
