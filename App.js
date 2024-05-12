@@ -110,7 +110,6 @@ class App {
             try {
                 yield this.Budget.model.create([jsonObj]);
                 res.send(jsonObj);
-                res.send(jsonObj.name + ' Budget created successfully');
             }
             catch (e) {
                 console.error(e);
