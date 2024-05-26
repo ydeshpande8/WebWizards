@@ -59,7 +59,8 @@ class App {
     routes() {
         let router = express.Router();
         // Auth routes
-        router.get('/auth/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
+        router.get('/auth/google', passport.authenticate('google', {
+            scope: ['https://www.googleapis.com/auth/userinfo.profile',
                 'https://www.googleapis.com/auth/userinfo.email']
         }));
         router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -127,7 +128,15 @@ class App {
         //get all budget    
         router.get('/app/budget/', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
             console.log('Query All budget');
-            yield this.Budget.retrieveAllBudget(req, res);
+            const user = yield this.User.getUserByssoId(req['user'].id);
+            yield this.Budget.retrieveAllBudget(user, req, res);
+        }));
+        //get all budget-no auth  
+        router.get('/app/budget-noauth/', (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            console.log('Query All budget');
+            const user = yield this.User.getUserByssoId(((_a = req['user']) === null || _a === void 0 ? void 0 : _a.id) || null);
+            yield this.Budget.retrieveAllBudget(user, req, res);
         }));
         //get count of all budgets    
         router.get('/app/budgetcount', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -136,6 +145,18 @@ class App {
         }));
         //get one budget
         router.get('/app/budget/:budgetId', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var id = parseInt(req.params.budgetId);
+            console.log('Query to get one category with id:' + id);
+            try {
+                yield this.Budget.retrieveBudgetDetails(res, id);
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).json({ error: 'An error occurred while retrieving the category.' });
+            }
+        }));
+        //get one budget - no auth
+        router.get('/app/budget-noauth/:budgetId', (req, res) => __awaiter(this, void 0, void 0, function* () {
             var id = parseInt(req.params.budgetId);
             console.log('Query to get one category with id:' + id);
             try {
@@ -160,6 +181,21 @@ class App {
                 console.log('object creation failed');
             }
         }));
+        //create budget no authentication
+        router.post('/app/budget-noauth/', (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const id = crypto.randomBytes(16).toString("hex");
+            console.log(req.body);
+            var jsonObj = req.body;
+            try {
+                yield this.Budget.model.create([jsonObj]);
+                res.send(jsonObj);
+            }
+            catch (e) {
+                console.error(e);
+                console.log('object creation failed');
+            }
+        }));
+        //get current user details
         router.get('/app/currentuser', (req, res) => __awaiter(this, void 0, void 0, function* () {
             const user = yield this.User.getUserByssoId(req['user'].id);
             res.send(user);
@@ -167,7 +203,8 @@ class App {
         // get report 
         router.get('/app/report/', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.Budget.reportByMonthYear(req, res);
+                const user = yield this.User.getUserByssoId(req['user'].id);
+                yield this.Budget.reportByMonthYear(user, req, res);
             }
             catch (e) {
                 console.error(e);

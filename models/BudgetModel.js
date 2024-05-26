@@ -56,9 +56,12 @@ class BudgetModel {
             }
         });
     }
-    retrieveAllBudget(req, response) {
+    retrieveAllBudget(user, req, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const queryParams = req.query;
+            if (user) {
+                queryParams.userId = user._id.toString();
+            }
             // var query = this.model.find(queryParams).populate("userId");
             var query = this.model.find(queryParams).populate({ path: "userId", select: "fname lname" }).populate("categoryId");
             try {
@@ -73,7 +76,6 @@ class BudgetModel {
     }
     retrieveBudgetDetails(response, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Hello in budget");
             var query = this.model.findOne({ budgetId: value }).populate({ path: "userId", select: "fname lname" }).populate("categoryId");
             try {
                 const categoryArray = yield query.exec();
@@ -119,17 +121,18 @@ class BudgetModel {
             }
         });
     }
-    reportByMonthYear(req, response) {
+    reportByMonthYear(user, req, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { month, year } = req.query;
                 const aggregateQuery = [
                     {
                         $match: {
+                            userId: user._id,
                             $expr: {
                                 $and: [
                                     { $eq: [{ $month: "$date" }, parseInt(month)] }, // Match month
-                                    { $eq: [{ $year: "$date" }, parseInt(year)] } // Match year
+                                    { $eq: [{ $year: "$date" }, parseInt(year)] }, // Match year
                                 ]
                             }
                         }

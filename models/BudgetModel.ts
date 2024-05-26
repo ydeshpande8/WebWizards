@@ -1,5 +1,6 @@
 import * as Mongoose from "mongoose";
 import { IBudgetModel } from "../interfaces/IBudgetModel";
+import { UserModel  } from "./UserModel";
 import { Schema } from "mongoose";
 
 
@@ -57,9 +58,11 @@ class BudgetModel{
         }
     }
 
-    public async retrieveAllBudget(req, response:any)
+    public async retrieveAllBudget(user, req, response:any)
     {
         const queryParams = req.query;
+        if (user){
+            queryParams.userId = user._id.toString()}
         // var query = this.model.find(queryParams).populate("userId");
         var query = this.model.find(queryParams).populate({path : "userId", select : "fname lname"}).populate("categoryId");
         try 
@@ -75,7 +78,6 @@ class BudgetModel{
     }
     public async retrieveBudgetDetails(response:any, value:Number)
     {
-        console.log("Hello in budget")
         var query = this.model.findOne({budgetId: value}).populate({path : "userId", select : "fname lname"}).populate("categoryId");
         try 
         {
@@ -126,16 +128,18 @@ class BudgetModel{
         }
     }
 
-    public async reportByMonthYear(req: any, response: any) {
+    public async reportByMonthYear(user , req: any, response: any) {
         try {
             const { month, year } = req.query;
             const aggregateQuery = [
                 {
                     $match: {
+                        userId : user._id,
+                      
                         $expr: {
                             $and: [
                                 { $eq: [{ $month: "$date" }, parseInt(month)] }, // Match month
-                                { $eq: [{ $year: "$date" }, parseInt(year)] } // Match year
+                                { $eq: [{ $year: "$date" }, parseInt(year)] }, // Match year
                             ]
                         }
                     }
