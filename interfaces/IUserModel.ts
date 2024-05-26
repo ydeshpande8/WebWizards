@@ -10,16 +10,14 @@ interface IUserModel extends Mongoose.Document
     userId : number;
     
     // Property for the user's first name.
-    fname : string;
-
-    // Property for the user's last name.
-    lname : string;
+    displayName : string;
 
     // Property for the user's email.
     email: string;
 
-    // Property for the user's password.
-    password : string;
+    photo : string;
+
+    ssoId : string;
 }
 
 // Exporting the IUserModel interface for use in other parts of the application.

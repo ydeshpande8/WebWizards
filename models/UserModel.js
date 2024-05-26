@@ -49,17 +49,22 @@ class UserModel {
     }
     createSchema() {
         this.schema = new Mongoose.Schema({
-            fname: { type: String, required: true },
-            lname: { type: String, required: true },
+            displayName: { type: String, required: true },
             email: { type: String, required: true },
-            password: { type: String, required: true },
             userId: { type: Number, required: false },
+            ssoId: { type: String, required: true },
+            photo: { type: String, required: true },
         }, { collection: "users" });
     }
     getAllUsers(response) {
         console.log("Get all users");
         var query = this.model.find({});
         query.exec((error, itemArray) => { response.json(itemArray); });
+    }
+    getUserByssoId(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.model.findOne({ ssoId: id }).exec();
+        });
     }
     getUserById(id, response) {
         return __awaiter(this, void 0, void 0, function* () {

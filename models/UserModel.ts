@@ -47,11 +47,11 @@ class UserModel {
     {
         this.schema = new Mongoose.Schema(
             {
-                fname: { type: String, required: true },
-                lname: { type: String, required: true },
+                displayName: { type: String, required: true },
                 email: { type: String, required: true },
-                password: { type: String, required: true },
                 userId: { type: Number, required: false},
+                ssoId: { type: String, required: true},
+                photo: { type: String , required: true},
             }, { collection : "users" });
     }
 
@@ -61,7 +61,11 @@ class UserModel {
         var query = this.model.find({})
         query.exec((error,itemArray)=>{response.json(itemArray)})
     }
-    
+
+    public async getUserByssoId(id: string){
+        return await this.model.findOne({ssoId: id}).exec();
+
+    }
 
     public async getUserById(id: string, response: any) {
         try {
