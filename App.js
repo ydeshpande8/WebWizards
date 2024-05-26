@@ -59,12 +59,31 @@ class App {
     routes() {
         let router = express.Router();
         // Auth routes
-        router.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
-        router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+        router.get('/auth/google', passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/userinfo.profile',
+                'https://www.googleapis.com/auth/userinfo.email']
+        }));
+        router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => __awaiter(this, void 0, void 0, function* () {
             console.log("successfully authenticated user and returned to callback page.");
-            console.log("redirecting to /#/report");
+            const user = yield this.User.getUserByssoId(req['user'].id);
+            console.log(user);
+            if (user) {
+                console.log("user exists");
+            }
+            else {
+                const email = (req['user'].emails.find(items => items.primary) || {}).value || null;
+                const photo = (req['user'].photos.find(items => items.primary) || {}).value || null;
+                const data = {
+                    email: email,
+                    displayName: req['user'].displayName,
+                    photo: photo,
+                    ssoId: req['user'].id
+                };
+                console.log("user does not exist. Creating one...");
+                yield this.User.model.create([data]);
+                console.log("user created successfully.");
+            }
             res.redirect('/#/report');
-        });
+        }));
         // ********** CATEGORY ROUTES **********
         // get all categories   
         router.get('/app/category/', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -140,6 +159,10 @@ class App {
                 console.error(e);
                 console.log('object creation failed');
             }
+        }));
+        router.get('/app/currentuser', (req, res) => __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.User.getUserByssoId(req['user'].id);
+            res.send(user);
         }));
         // get report 
         router.get('/app/report/', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {

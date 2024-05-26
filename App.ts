@@ -77,16 +77,39 @@ class App {
 
 // Auth routes
     router.get('/auth/google', 
-    passport.authenticate('google', {scope: ['profile']}));
+    passport.authenticate('google', {scope:       ['https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email']
+  }));
 
 
   router.get('/auth/google/callback', 
     passport.authenticate('google', 
       { failureRedirect: '/' }
     ),
-    (req, res) => {
+    async(req, res) => {
       console.log("successfully authenticated user and returned to callback page.");
-      console.log("redirecting to /#/report");
+      const user = await this.User.getUserByssoId(req['user'].id)
+      console.log(user)
+      if (user){
+        console.log("user exists"
+
+        )
+     
+      }
+      else{
+        const email = (req['user'].emails.find(items => items.primary)||{}).value||null
+        const photo = (req['user'].photos.find(items => items.primary)||{}).value||null
+        const data = {
+          email : email,
+          displayName : req['user'].displayName,
+          photo : photo,
+          ssoId : req['user'].id
+        }
+        console.log("user does not exist. Creating one...")
+        await this.User.model.create([data])
+        console.log("user created successfully.")
+      }
+     
       res.redirect('/#/report');
     } 
   );
@@ -188,6 +211,14 @@ class App {
           console.log('object creation failed');
         }
       });
+
+      router.get('/app/currentuser',async (req,res) => 
+        
+        {
+          const user = await this.User.getUserByssoId(req['user'].id)
+          res.send(user)
+        }
+      )
 
     // get report 
     router.get('/app/report/',this.validateAuth, async (req, res) => {
