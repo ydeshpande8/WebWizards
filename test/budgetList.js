@@ -13,10 +13,11 @@ describe('Test Budget list result', function () {
 		 
     before(function (done) {
         chai.request("http://localhost:8080")
-			.get("/app/budget")
+			.get("/app/budget-noauth")
 			.end(function (err, res) {
 				requestResult = res.body;
 				response = res;
+				console.log(res.body)
                 expect(err).to.be.null;
                 expect(res).to.have.status(200);
 				done();

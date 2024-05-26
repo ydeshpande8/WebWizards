@@ -16,7 +16,7 @@ describe('Test Single Budget result', function () {
 		 
     before(function (done) {
         chai.request("http://localhost:8080")
-			.get("/app/budget/" + budgetId)
+			.get("/app/budget-noauth/" + budgetId)
 			.end(function (err, res) {
 				requestResult = res.body;
 				response = res;
