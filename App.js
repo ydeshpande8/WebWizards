@@ -83,7 +83,7 @@ class App {
                 yield this.User.model.create([data]);
                 console.log("user created successfully.");
             }
-            res.redirect('/#/report');
+            res.redirect('/#');
         }));
         // ********** CATEGORY ROUTES **********
         // get all categories   

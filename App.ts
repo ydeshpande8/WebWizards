@@ -110,7 +110,7 @@ class App {
           console.log("user created successfully.")
         }
 
-        res.redirect('/#/report');
+        res.redirect('/#');
       }
     );
 
