@@ -214,8 +214,8 @@ class App {
       var jsonObj = req.body;
 
       try {
-        await this.Budget.model.create([jsonObj]);
-        res.send(jsonObj)
+        const data = await this.Budget.model.create([jsonObj]);
+        res.send(data)
       }
       catch (e) {
         console.error(e);
