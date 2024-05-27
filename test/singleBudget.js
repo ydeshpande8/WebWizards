@@ -15,7 +15,7 @@ describe('Test Single Budget result', function () {
     var note = "Bartender"
 		 
     before(function (done) {
-        chai.request("http://localhost:8080")
+        chai.request("https://webbwizards.azurewebsites.net/")
 			.get("/app/budget-noauth/" + budgetId)
 			.end(function (err, res) {
 				requestResult = res.body;

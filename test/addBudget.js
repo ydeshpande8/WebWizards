@@ -21,7 +21,7 @@ describe('Test add budget result', function () {
     }
 		 
     before(function (done) {
-        chai.request("http://localhost:8080")
+        chai.request("https://webbwizards.azurewebsites.net/")
 			.post("/app/budget-noauth")
             .send(budgetEntry)
 			.end(function (err, res) {
