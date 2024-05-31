@@ -63,7 +63,16 @@ class UserModel {
     }
     getUserByssoId(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.model.findOne({ ssoId: id }).exec();
+            console.log("I am here", id);
+            try {
+                const user = yield this.model.findOne({ ssoId: id }).exec();
+                // return await this.model.findOne({ssoId: id}).exec();
+                return user;
+            }
+            catch (error) {
+                console.log("I am error", error);
+                throw error;
+            }
         });
     }
     getUserById(id, response) {

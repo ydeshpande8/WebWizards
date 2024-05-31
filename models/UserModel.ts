@@ -63,7 +63,15 @@ class UserModel {
     }
 
     public async getUserByssoId(id: string){
-        return await this.model.findOne({ssoId: id}).exec();
+        console.log("I am here", id)
+        try{
+            const user = await this.model.findOne({ssoId: id}).exec();
+        // return await this.model.findOne({ssoId: id}).exec();
+        return user}
+        catch(error){
+            console.log ("I am error", error);
+            throw error
+        }
 
     }
 

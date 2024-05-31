@@ -64,10 +64,41 @@ class App {
     });
   }
 
-  private validateAuth(req, res, next): void {
-    if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
+  private async validateAuth(req, res, next): Promise<void> {
+    if (req.isAuthenticated()) {
+       console.log("user is authenticated"); 
+
+       return next();
+       }
+
     console.log("user is not authenticated");
     res.redirect('/');
+  }
+
+  private async createUser(user){
+          console.log(await this.User.getUserByssoId(user.id))
+           // const user = await this.User.getUserByssoId(userId.id)
+   
+           // if (user) {
+           //   console.log("user exists"
+   
+           //   )
+   
+           // }
+           // else {
+           //   const email = (req['user'].emails.find(items => items.primary) || {}).value || null
+           //   const photo = (req['user'].photos.find(items => items.primary) || {}).value || null
+           //   const data = {
+           //     email: email,
+           //     displayName: req['user'].displayName,
+           //     photo: photo,
+           //     ssoId: req['user'].id
+           //   }
+           //   console.log("user does not exist. Creating one...")
+           //   await this.User.model.create([data])
+           //   console.log("user created successfully.")
+           // }
+
   }
 
   // Configure API endpoints.
@@ -88,27 +119,6 @@ class App {
       ),
       async (req, res) => {
         console.log("successfully authenticated user and returned to callback page.");
-        const user = await this.User.getUserByssoId(req['user'].id)
-        console.log(user)
-        if (user) {
-          console.log("user exists"
-
-          )
-
-        }
-        else {
-          const email = (req['user'].emails.find(items => items.primary) || {}).value || null
-          const photo = (req['user'].photos.find(items => items.primary) || {}).value || null
-          const data = {
-            email: email,
-            displayName: req['user'].displayName,
-            photo: photo,
-            ssoId: req['user'].id
-          }
-          console.log("user does not exist. Creating one...")
-          await this.User.model.create([data])
-          console.log("user created successfully.")
-        }
 
         res.redirect('/#');
       }
@@ -163,7 +173,8 @@ class App {
     //get all budget    
     router.get('/app/budget/', this.validateAuth, async (req, res) => {
       console.log('Query All budget');
-      const user = await this.User.getUserByssoId(req['user'].id)
+      await this.createUser(req['user'])
+      const user = await this.User.getUserByssoId(req['user']?.id)
       await this.Budget.retrieveAllBudget(user, req, res);
     });
 
@@ -212,6 +223,7 @@ class App {
       const id = crypto.randomBytes(16).toString("hex");
       console.log(req.body);
       var jsonObj = req.body;
+      
 
       try {
         const data = await this.Budget.model.create([jsonObj]);
@@ -242,7 +254,7 @@ class App {
 
     //get current user details
     router.get('/app/currentuser', async (req, res) => {
-      const user = await this.User.getUserByssoId(req['user'].id)
+      const user = await this.User.getUserByssoId(req['user']?.id)
       res.send(user)
     }
     )
@@ -250,7 +262,7 @@ class App {
     // get report 
     router.get('/app/report/', this.validateAuth, async (req, res) => {
       try {
-        const user = await this.User.getUserByssoId(req['user'].id)
+        const user = await this.User.getUserByssoId(req['user']?.id)
         await this.Budget.reportByMonthYear(user, req, res);
 
       }

@@ -48,12 +48,37 @@ class App {
         });
     }
     validateAuth(req, res, next) {
-        if (req.isAuthenticated()) {
-            console.log("user is authenticated");
-            return next();
-        }
-        console.log("user is not authenticated");
-        res.redirect('/');
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.isAuthenticated()) {
+                console.log("user is authenticated");
+                return next();
+            }
+            console.log("user is not authenticated");
+            res.redirect('/');
+        });
+    }
+    createUser(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(yield this.User.getUserByssoId(user.id));
+            // const user = await this.User.getUserByssoId(userId.id)
+            // if (user) {
+            //   console.log("user exists"
+            //   )
+            // }
+            // else {
+            //   const email = (req['user'].emails.find(items => items.primary) || {}).value || null
+            //   const photo = (req['user'].photos.find(items => items.primary) || {}).value || null
+            //   const data = {
+            //     email: email,
+            //     displayName: req['user'].displayName,
+            //     photo: photo,
+            //     ssoId: req['user'].id
+            //   }
+            //   console.log("user does not exist. Creating one...")
+            //   await this.User.model.create([data])
+            //   console.log("user created successfully.")
+            // }
+        });
     }
     // Configure API endpoints.
     routes() {
@@ -65,24 +90,6 @@ class App {
         }));
         router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => __awaiter(this, void 0, void 0, function* () {
             console.log("successfully authenticated user and returned to callback page.");
-            const user = yield this.User.getUserByssoId(req['user'].id);
-            console.log(user);
-            if (user) {
-                console.log("user exists");
-            }
-            else {
-                const email = (req['user'].emails.find(items => items.primary) || {}).value || null;
-                const photo = (req['user'].photos.find(items => items.primary) || {}).value || null;
-                const data = {
-                    email: email,
-                    displayName: req['user'].displayName,
-                    photo: photo,
-                    ssoId: req['user'].id
-                };
-                console.log("user does not exist. Creating one...");
-                yield this.User.model.create([data]);
-                console.log("user created successfully.");
-            }
             res.redirect('/#');
         }));
         // ********** CATEGORY ROUTES **********
@@ -127,15 +134,17 @@ class App {
         // ********** BUDGET ROUTES **********
         //get all budget    
         router.get('/app/budget/', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             console.log('Query All budget');
-            const user = yield this.User.getUserByssoId(req['user'].id);
+            yield this.createUser(req['user']);
+            const user = yield this.User.getUserByssoId((_a = req['user']) === null || _a === void 0 ? void 0 : _a.id);
             yield this.Budget.retrieveAllBudget(user, req, res);
         }));
         //get all budget-no auth  
         router.get('/app/budget-noauth/', (req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
+            var _b;
             console.log('Query All budget');
-            const user = yield this.User.getUserByssoId(((_a = req['user']) === null || _a === void 0 ? void 0 : _a.id) || null);
+            const user = yield this.User.getUserByssoId(((_b = req['user']) === null || _b === void 0 ? void 0 : _b.id) || null);
             yield this.Budget.retrieveAllBudget(user, req, res);
         }));
         //get count of all budgets    
@@ -173,8 +182,8 @@ class App {
             console.log(req.body);
             var jsonObj = req.body;
             try {
-                yield this.Budget.model.create([jsonObj]);
-                res.send(jsonObj);
+                const data = yield this.Budget.model.create([jsonObj]);
+                res.send(data);
             }
             catch (e) {
                 console.error(e);
@@ -197,13 +206,15 @@ class App {
         }));
         //get current user details
         router.get('/app/currentuser', (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.User.getUserByssoId(req['user'].id);
+            var _c;
+            const user = yield this.User.getUserByssoId((_c = req['user']) === null || _c === void 0 ? void 0 : _c.id);
             res.send(user);
         }));
         // get report 
         router.get('/app/report/', this.validateAuth, (req, res) => __awaiter(this, void 0, void 0, function* () {
+            var _d;
             try {
-                const user = yield this.User.getUserByssoId(req['user'].id);
+                const user = yield this.User.getUserByssoId((_d = req['user']) === null || _d === void 0 ? void 0 : _d.id);
                 yield this.Budget.reportByMonthYear(user, req, res);
             }
             catch (e) {
